@@ -1,14 +1,22 @@
 import 'dart:async';
 
+import 'package:event_app/src/services/auth/authservices.dart';
 import 'package:event_app/src/utils/appcolors.dart';
-import 'package:event_app/src/views/auth/signinpage.dart';
+import 'package:event_app/src/views/nav/navpage.dart';
 import 'package:event_app/src/widgets/buttonpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+
+import '../../models/usermodel.dart';
+import '../../services/users/userservices.dart';
 
 class VerificationPage extends StatefulWidget {
-  const VerificationPage({super.key});
+  final String name;
+  final String email;
+  final String password;
+  const VerificationPage({super.key, required this.name, required this.email, required this.password});
 
   @override
   State<VerificationPage> createState() => _VerificationPageState();
@@ -27,7 +35,7 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   void startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (countdown > 0) {
         setState(() {
           countdown--;
@@ -48,6 +56,26 @@ class _VerificationPageState extends State<VerificationPage> {
   final TextEditingController _secondController = TextEditingController();
   final TextEditingController _thirdController = TextEditingController();
   final TextEditingController _fourthController = TextEditingController();
+
+  Future<void> createUser() async{
+    try{
+      await UserService().saveUser(UserModel(
+          userid: "",
+          name: widget.name,
+          email: widget.email,
+      ),widget.password);
+      if(mounted){
+      showDialog(context: context, builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },);}
+      Get.to(const NavBarPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+
+    }catch(error){
+      print("Error : $error");
+    }
+  }
 
 
   @override
@@ -226,15 +254,31 @@ class _VerificationPageState extends State<VerificationPage> {
             ),
             Column(
               children: [
-                const AppButton(text: "CONTINUE", page: SignInPage()),
+                GestureDetector(
+                    onTap: () async{
+                      await AuthService().verifyOtp(otp: _firstController.text+_secondController.text+_thirdController.text+_fourthController.text);
+                      await createUser();
+                    },
+                    child: const AppButton(text: "CONTINUE",)),
                 SizedBox(height: 24.h,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Re-send code in  ",style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w400
-                    ),),
+                    GestureDetector(
+                      onTap: () async{
+                        if(countdown == 0){
+                          await AuthService().sendOtp(email: widget.email);
+                          setState(() {
+                            countdown = 20;
+                          });
+                          startTimer();
+                        }
+                      },
+                      child: Text("Re-send code in  ",style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w400
+                      ),),
+                    ),
                     Text(countdown>9?"0:$countdown":"0:0$countdown",style: TextStyle(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w400,

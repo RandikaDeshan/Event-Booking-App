@@ -1,5 +1,8 @@
+import 'package:event_app/src/services/auth/authservices.dart';
+import 'package:event_app/src/views/auth/signinpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 class DrawerPage extends StatelessWidget {
   const DrawerPage({super.key});
@@ -128,16 +131,22 @@ class DrawerPage extends StatelessWidget {
               ],
             ),
             SizedBox(height: 33.h,),
-            Row(
-              children: [
-                const Icon(Icons.login_outlined,size: 23,color: Color.fromRGBO(118, 118, 118, 1),),
-                SizedBox(width: 14.w,),
-                Text("Sign Out",style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w400,
-                    color: const Color.fromRGBO(0, 0, 0, 1)
-                ),),
-              ],
+            GestureDetector(
+              onTap: () async{
+                await AuthService().signOut();
+                Get.to(const SignInPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700),popGesture: false);
+              },
+              child: Row(
+                children: [
+                  const Icon(Icons.login_outlined,size: 23,color: Color.fromRGBO(118, 118, 118, 1),),
+                  SizedBox(width: 14.w,),
+                  Text("Sign Out",style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w400,
+                      color: const Color.fromRGBO(0, 0, 0, 1)
+                  ),),
+                ],
+              ),
             ),
           ],
         ),

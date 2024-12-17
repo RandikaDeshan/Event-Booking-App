@@ -1,8 +1,12 @@
+import 'package:event_app/src/models/usermodel.dart';
+import 'package:event_app/src/services/auth/authservices.dart';
+import 'package:event_app/src/services/users/userservices.dart';
 import 'package:event_app/src/views/auth/signinpage.dart';
 import 'package:event_app/src/views/auth/verificationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 import '../../utils/appcolors.dart';
 import '../../widgets/buttonpage.dart';
@@ -32,6 +36,8 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +172,10 @@ class _SignUpPageState extends State<SignUpPage> {
                         validator: (value) {
                           if(value!.isEmpty){
                             return 'Please reenter password';
-                          }else{
+                          }else if(_passwordController.text != value){
+                            return 'Confirm password should be equal to password';
+                          }
+                          else{
                             return null;
                           }
                         },
@@ -193,13 +202,29 @@ class _SignUpPageState extends State<SignUpPage> {
                               setState(() {
                                 confirmPassword = !confirmPassword;
                               });
-                            }, icon: Icon(confirmPassword?Icons.visibility:Icons.visibility_off,size:24,color:Color.fromRGBO(151, 151, 151, 1),))
+                            }, icon: Icon(confirmPassword?Icons.visibility:Icons.visibility_off,size:24,color:const Color.fromRGBO(151, 151, 151, 1),))
                         ),
                       ),
                     ),
                     SizedBox(height: 20.h,),
                     SizedBox(height: 36.h,),
-                    const Center(child: AppButton(text: 'SIGN UP', page: VerificationPage(),))
+                    Center(child: GestureDetector(
+                        onTap: () async{
+                          if(_formKey.currentState!.validate()){
+                          await AuthService().sendOtp(email: _emailController.text);
+                          if(context.mounted){
+                          showDialog(context: context, builder: (context) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          },);
+                          Get.to(VerificationPage(
+                              name: _nameController.text,
+                              email: _emailController.text,
+                              password: _passwordController.text),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+                          }}
+                        },
+                        child: const AppButton(text: 'SIGN UP',)))
                   ],
                 ),
               ),
@@ -226,9 +251,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return const SignInPage();
-                        },));
+                        Get.to(const SignInPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
                       },
                       child: Text("Signin",style: TextStyle(
                           fontSize: 15.sp,

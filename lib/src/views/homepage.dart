@@ -1,3 +1,8 @@
+import 'package:event_app/src/models/categoryimages.dart';
+import 'package:event_app/src/models/categorymodel.dart';
+import 'package:event_app/src/models/eventimages.dart';
+import 'package:event_app/src/services/category/categoryservices.dart';
+import 'package:event_app/src/services/event/eventservices.dart';
 import 'package:event_app/src/views/drawerpage.dart';
 import 'package:event_app/src/views/eventdetailspage.dart';
 import 'package:event_app/src/views/notificationspage.dart';
@@ -11,7 +16,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+
+import '../models/eventmodel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,6 +33,13 @@ class _HomePageState extends State<HomePage> {
 
   void showDrawer(){
     drawerController.showDrawer();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    drawerController.hideDrawer();
   }
   @override
   Widget build(BuildContext context) {
@@ -96,9 +111,7 @@ class _HomePageState extends State<HomePage> {
                                       backgroundColor: const Color.fromRGBO(255, 255, 255, 0.1),
                                     ),
                                     onPressed: (){
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                        return const NotificationsPage();
-                                      },));
+                                      Get.to(const NotificationsPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
                                     }, icon:Stack(
                                   children: [
                                     const Icon(Icons.notifications_none,color: Colors.white,),
@@ -129,9 +142,7 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     GestureDetector(
                                         onTap:(){
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                            return const SearchPage();
-                                          },));
+                                          Get.to(const SearchPage(categories: [],),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
                                         },
                                         child: SvgPicture.asset("assets/images/search.svg")),
                                     SizedBox(width: 10.w,),
@@ -201,12 +212,28 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Positioned(
                       bottom: 0,
-                      child: SizedBox(
-                        height: 40.h,
-                        width: MediaQuery.of(context).size.width,
-                        child: ListView.builder(itemCount: 10,scrollDirection: Axis.horizontal,itemBuilder: (context, index) {
-                          return const CategoryCard();
-                        },),
+                      child: FutureBuilder(
+                        future: CategoryService().getCategories(),
+                        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                          if(snapshot.connectionState == ConnectionState.waiting){
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          else if(!snapshot.hasData){
+                            return const Center(
+                              child: Text("No Category"),
+                            );
+                          }
+                          return SizedBox(
+                            height: 40.h,
+                            width: MediaQuery.of(context).size.width,
+                            child: ListView.builder(itemCount: snapshot.data!.length,scrollDirection: Axis.horizontal,itemBuilder: (context, index) {
+                              CategoryModel category = snapshot.data[index];
+                              return CategoryCard(id: category.id, image: CategoryImages().categoryImages[index],);
+                            },),
+                          );
+                        },
                       )
                     )
                   ],
@@ -239,17 +266,34 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   SizedBox(height: 19.h,),
-                  SizedBox(
-                    height: 260.h,
-                    child: ListView.builder(itemCount: 10,scrollDirection: Axis.horizontal,itemBuilder: (context, index) {
-                      return GestureDetector(
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) {
-                              return const EventDetailsPage();
-                            },));
-                          },
-                          child: const EventCard());
-                    },),
+                  FutureBuilder(
+                    future: EventService().getEvents(),
+                    builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                      if(snapshot.connectionState == ConnectionState.waiting){
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      else if(!snapshot.hasData){
+                        return const Center(
+                          child: Text("No Events"),
+                        );
+                      }
+                      return SizedBox(
+                        height: 260.h,
+                        child: ListView.builder(itemCount:snapshot.data!.length,scrollDirection: Axis.horizontal,itemBuilder: (context, index) {
+                          final EventModel event = snapshot.data[index];
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.w),
+                            child: GestureDetector(
+                                onTap: () {
+                                  Get.to(EventDetailsPage(image: EventImages().eventImages[index], id: event.eventId),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+                                },
+                                child:  EventCard(image: EventImages().eventImages[index], id: event.eventId,)),
+                          );
+                        },),
+                      );
+                  },
                   ),
                   SizedBox(height: 29.h,),
                   Padding(

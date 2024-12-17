@@ -1,8 +1,10 @@
+import 'package:event_app/src/models/categoryimages.dart';
+import 'package:event_app/src/models/categorymodel.dart';
+import 'package:event_app/src/services/category/categoryservices.dart';
 import 'package:event_app/src/utils/appcolors.dart';
-import 'package:event_app/src/widgets/categorycard.dart';
 import 'package:event_app/src/widgets/mapcategorycard.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MapPage extends StatefulWidget {
@@ -13,53 +15,19 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  MapController controller = MapController(
-    initPosition: GeoPoint(latitude: 47.4358055, longitude: 8.4737324),
-    areaLimit: const BoundingBox(
-      east: 10.4922941,
-      north: 47.8084648,
-      south: 45.817995,
-      west: 5.9559113,
-    ),
-  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children:[ OSMFlutter(
-            mapIsLoading: const Center(child: CircularProgressIndicator()),
-            controller: controller,
-            osmOption: OSMOption(
-              userTrackingOption: const UserTrackingOption(
-                enableTracking: true,
-                unFollowUser: false,
-              ),
-              zoomOption: const ZoomOption(
-                initZoom: 8,
-                minZoomLevel: 3,
-                maxZoomLevel: 19,
-                stepZoom: 1.0,
-              ),
-              userLocationMarker: UserLocationMaker(
-                personMarker: const MarkerIcon(
-                  icon: Icon(
-                    Icons.location_history_rounded,
-                    color: Colors.red,
-                    size: 48,
-                  ),
-                ),
-                directionArrowMarker: const MarkerIcon(
-                  icon: Icon(
-                    Icons.double_arrow,
-                    size: 48,
-                  ),
-                ),
-              ),
-              showZoomController: true,
-              roadConfiguration: const RoadOption(
-                roadColor: Colors.yellowAccent,
-              ),
-            )),
+      body:
+
+      Stack(
+        children:[
+          FlutterMap(
+              children:[
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                )
+              ] ),
           Positioned(
             top: 0,
             child: SizedBox(
@@ -111,14 +79,27 @@ class _MapPageState extends State<MapPage> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(left: 25.w,top: 20.h),
-                        child: SizedBox(
-                          height: 42.h,
-                          width: MediaQuery.of(context).size.width,
-                          child: Expanded(
-                            child: ListView.builder(itemCount: 10,scrollDirection: Axis.horizontal,itemBuilder: (context, index) {
-                              return const MapCategoryCard();
+                        child: FutureBuilder(
+                          future: CategoryService().getCategories(),
+                          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                            if(snapshot.connectionState == ConnectionState.waiting){
+                              return const Center(
+                              );
+                            }
+                            else if(!snapshot.hasData){
+                              return const Center(
+                                child: Text("No Categories"),
+                              );
+                            }
+                            return SizedBox(
+                            height: 42.h,
+                            width: MediaQuery.of(context).size.width,
+                            child: ListView.builder(itemCount: snapshot.data!.length,scrollDirection: Axis.horizontal,itemBuilder: (context, index) {
+                              CategoryModel category = snapshot.data[index];
+                              return  MapCategoryCard(id: category.id, image: CategoryImages().categoryImages[index],);
                             },),
-                          ),
+                          );
+                        },
                         ),
                       )
                     ],

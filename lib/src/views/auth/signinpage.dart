@@ -1,15 +1,15 @@
+import 'package:event_app/src/services/auth/authservices.dart';
 import 'package:event_app/src/utils/appcolors.dart';
 import 'package:event_app/src/views/auth/resetpwpage.dart';
 import 'package:event_app/src/views/auth/signuppage.dart';
-import 'package:event_app/src/views/auth/verificationpage.dart';
-import 'package:event_app/src/views/homepage.dart';
-import 'package:event_app/src/views/nav/navpage.dart';
+import 'package:event_app/src/views/auth/wrapperpage.dart';
 import 'package:event_app/src/widgets/buttonpage.dart';
 import 'package:event_app/src/widgets/facebookbutton.dart';
 import 'package:event_app/src/widgets/googlebutton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -26,12 +26,28 @@ class _SignInPageState extends State<SignInPage> {
     // TODO: implement initState
     super.initState();
     password = false;
+    switchValue = false;
   }
 
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> signIn() async{
+    try{
+      await AuthService().signInWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
+      );
+      if(mounted){
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+        return const WrapperPage();
+      },));}
+    }catch(error){
+      print("Error : $error");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,9 +169,7 @@ class _SignInPageState extends State<SignInPage> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) {
-                              return const ResetPWPage();
-                            },));
+                            Get.to(const ResetPWPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
                           },
                           child: Text("Forgot Password?",style: TextStyle(
                             fontSize: 14.sp,
@@ -165,7 +179,12 @@ class _SignInPageState extends State<SignInPage> {
                       ],
                     ),
                     SizedBox(height: 36.h,),
-                    const Center(child: AppButton(text: 'SIGN IN', page: NavBarPage(),))
+                    Center(child: GestureDetector(
+                      onTap: () {
+                        if(_formKey.currentState!.validate()){
+                        signIn();}
+                      },
+                        child: const AppButton(text: 'SIGN IN')))
                   ],
                 ),
               ),
@@ -192,9 +211,7 @@ class _SignInPageState extends State<SignInPage> {
                     ),),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return const SignUpPage();
-                        },));
+                        Get.to(const SignUpPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
                       },
                       child: Text("Sign up",style: TextStyle(
                           fontSize: 15.sp,

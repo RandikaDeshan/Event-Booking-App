@@ -1,5 +1,5 @@
 import 'package:event_app/src/utils/appcolors.dart';
-import 'package:event_app/src/views/eventPage.dart';
+import 'package:event_app/src/views/eventpage.dart';
 import 'package:event_app/src/views/mappage.dart';
 import 'package:event_app/src/views/profilepage.dart';
 import 'package:flutter/material.dart';

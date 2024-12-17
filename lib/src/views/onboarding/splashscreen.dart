@@ -1,5 +1,7 @@
+import 'package:event_app/src/services/users/userservices.dart';
 import 'package:event_app/src/views/onboarding/onboardingpages.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -19,10 +21,9 @@ class _SplashPageState extends State<SplashPage> {
 
   _goToHome()async{
     await Future.delayed(const Duration(milliseconds: 3000,),(){});
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const OnBoardingPage();
-    },));
-  }
+    if(mounted){
+      Get.to(const OnBoardingPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700),popGesture: false);
+  }}
   @override
   Widget build(BuildContext context) {
     return const Scaffold(

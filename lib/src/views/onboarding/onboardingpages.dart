@@ -2,6 +2,7 @@ import 'package:event_app/src/utils/appcolors.dart';
 import 'package:event_app/src/views/auth/signinpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class OnBoardingPage extends StatefulWidget {
@@ -102,9 +103,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                     TextButton(
                         onPressed: (){
                           if(no == 2){
-                            Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) {
-                              return const SignInPage();
-                            },));
+                            Get.to(const SignInPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700),popGesture: false);
                           }
                           controller.nextPage(duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
                         },

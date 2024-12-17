@@ -1,4 +1,5 @@
 import 'package:event_app/src/utils/appcolors.dart';
+import 'package:event_app/src/views/searchpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -47,8 +48,19 @@ List buttons = [
   },
 ];
 
+List<String> selectedCategories = [];
 class _FilterPageState extends State<FilterPage> {
-  SfRangeValues _values = const SfRangeValues(20, 120);
+  SfRangeValues _values = const SfRangeValues(0, 250);
+  DateTime? date;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    buttons;
+    controller;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -76,10 +88,15 @@ class _FilterPageState extends State<FilterPage> {
                     children: [
                       Padding(
                         padding:  EdgeInsets.symmetric(horizontal: 8.w),
-                        child: IconButton(onPressed: (){
+                        child: IconButton(onPressed: ()async{
                           setState(() {
                             button["isSelected"] = !button["isSelected"];
                           });
+                          if(button['isSelected']){
+                            selectedCategories.add(button["name"]);
+                          }else{
+                            selectedCategories.remove(button["name"]);
+                          }
                         },
                           style: IconButton.styleFrom(
                               backgroundColor: button["isSelected"] ? AppColors.primaryColor : Colors.white,
@@ -89,7 +106,7 @@ class _FilterPageState extends State<FilterPage> {
                                     width: 0.87),
                               )
                           ),
-                          icon: SvgPicture.asset("assets/images/${button["img"]}",color:button["isSelected"] ? Colors.white :  const Color.fromRGBO(182, 182, 182, 1),),),
+                          icon: SvgPicture.asset("assets/images/${button['img']}",color:button["isSelected"] ? Colors.white :  const Color.fromRGBO(182, 182, 182, 1),),),
                       ),
                       SizedBox(height: 11.h,),
                       Text(button["name"],style: TextStyle(
@@ -112,6 +129,7 @@ class _FilterPageState extends State<FilterPage> {
             ),
             GroupButton(
                 controller: controller,
+                enableDeselect: true,
                 options: GroupButtonOptions(
                   unselectedTextStyle: TextStyle(
                       fontSize: 15.sp,
@@ -148,19 +166,32 @@ class _FilterPageState extends State<FilterPage> {
                 ),
                 child: Padding(
                   padding:  EdgeInsets.symmetric(horizontal: 14.w),
-                  child: Row(
-                    children: [
-                      Icon(Icons.calendar_month_outlined,color: AppColors.primaryColor,size: 23,),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 13.w),
-                        child: Text("Choose from calender",style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.w400,
-                            color: const Color.fromRGBO(128, 122, 122, 1)
-                        ),),
-                      ),
-                      Icon(Icons.arrow_forward_ios,color: AppColors.primaryColor,size: 9,),
-                    ],
+                  child: GestureDetector(
+                    onTap: () async{
+                      final DateTime? dateTime = await showDatePicker(
+                          context: context,
+                          initialEntryMode: DatePickerEntryMode.calendar,
+                          firstDate: DateTime(2000),
+                          lastDate:DateTime(3000)
+                      );
+                      setState(() {
+                        date = dateTime;
+                      });
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.calendar_month_outlined,color: AppColors.primaryColor,size: 23,),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 13.w),
+                          child: Text("Choose from calender",style: TextStyle(
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.w400,
+                              color: const Color.fromRGBO(128, 122, 122, 1)
+                          ),),
+                        ),
+                        Icon(Icons.arrow_forward_ios,color: AppColors.primaryColor,size: 9,),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -249,7 +280,7 @@ class _FilterPageState extends State<FilterPage> {
             SfRangeSlider(
                 values: _values,
                 activeColor: AppColors.primaryColor,
-                max: 200,
+                max: 250,
                 min: 0,
                 stepSize: 10,
                 startThumbIcon: Container(
@@ -301,7 +332,18 @@ class _FilterPageState extends State<FilterPage> {
               child: Row(
                 children: [
                   Expanded(
-                    child: TextButton(onPressed: (){},
+                    child: TextButton(onPressed: (){
+                      setState(() {
+                        controller.unselectAll();
+                        _values = const SfRangeValues(0, 250);
+                      });
+                      buttons.forEach((element) {
+                        setState(() {
+                          element['isSelected'] = false;
+                        });
+                      },);
+                      selectedCategories.clear();
+                    },
                         style: TextButton.styleFrom(
                           fixedSize: Size.fromHeight(58.h),
                           backgroundColor: Colors.white,
@@ -321,7 +363,18 @@ class _FilterPageState extends State<FilterPage> {
                   ),
                   SizedBox(width: 19.w,),
                   Expanded(
-                    child: TextButton(onPressed: (){},
+                    child: TextButton(onPressed: (){
+                      print(date);
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+                        return SearchPage(
+                          categories: selectedCategories,
+                          date: controller.selectedIndex,
+                          location: '',
+                          price1: _values.start.round(),
+                          pickedDate: date,
+                          price2: _values.end.round(),);
+                      },));
+                    },
                         style: TextButton.styleFrom(
                             backgroundColor: AppColors.primaryColor,
                             fixedSize: Size.fromHeight(58.h),

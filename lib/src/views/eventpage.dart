@@ -13,6 +13,13 @@ class Eventpage extends StatefulWidget {
 }
 int page = 0;
 class _EventpageState extends State<Eventpage> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    page = 0;
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,14 +59,6 @@ class _EventpageState extends State<Eventpage> {
                         decoration: BoxDecoration(
                           color: page == 0?Colors.white:Colors.transparent,
                           borderRadius: BorderRadius.circular(100),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.1),
-                              spreadRadius: 0,
-                              blurRadius: 20,
-                              offset: Offset(0, 5)
-                            )
-                          ]
                         ),
                         child: Center(
                           child: Text("UPCOMING",style: TextStyle(
@@ -83,14 +82,7 @@ class _EventpageState extends State<Eventpage> {
                         decoration: BoxDecoration(
                             color: page == 1 ? Colors.white : Colors.transparent,
                             borderRadius: BorderRadius.circular(100),
-                            boxShadow: const [
-                              BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.1),
-                                  spreadRadius: 0,
-                                  blurRadius: 20,
-                                  offset: Offset(0, 5)
-                              )
-                            ]
+
                         ),
                         child: Center(
                           child: Text("PAST EVENTS",style: TextStyle(

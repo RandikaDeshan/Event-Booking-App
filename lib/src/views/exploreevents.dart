@@ -1,3 +1,6 @@
+import 'package:event_app/src/models/eventimages.dart';
+import 'package:event_app/src/models/eventmodel.dart';
+import 'package:event_app/src/services/event/eventservices.dart';
 import 'package:event_app/src/views/nav/navpage.dart';
 import 'package:event_app/src/widgets/searcheventcard.dart';
 import 'package:flutter/material.dart';
@@ -26,12 +29,28 @@ class ExploreEventsPage extends StatelessWidget {
           IconButton(onPressed: (){}, icon: const Icon(Icons.more_vert,color: Color.fromRGBO(6, 5, 24, 1),))
         ],
       ),
-      body: ListView.builder(itemCount: 10,itemBuilder: (context, index) {
-        return Padding(
-          padding:EdgeInsets.symmetric(horizontal: 24.w,vertical: 6.h),
-          child: const SearchEventCard(),
-        );
-      },),
+      body: FutureBuilder(
+        future: EventService().getEvents(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if(snapshot.connectionState == ConnectionState.waiting){
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          else if(!snapshot.hasData){
+            return const Center(
+              child: Text("No Events"),
+            );
+          }
+          return  ListView.builder(itemCount: snapshot.data!.length,itemBuilder: (context, index) {
+            EventModel event = snapshot.data[index];
+            return Padding(
+              padding:EdgeInsets.symmetric(horizontal: 24.w,vertical: 6.h),
+              child: SearchEventCard(id: event.eventId, image: EventImages().eventImages[index],),
+            );
+          },);
+        },
+      ),
     );
   }
 }

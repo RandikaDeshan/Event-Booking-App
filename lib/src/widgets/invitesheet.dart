@@ -175,7 +175,7 @@ class _InviteSheetState extends State<InviteSheet> {
             bottom: 27,
             left: 50,
             right: 50,
-            child: AppButton(text: "Invite", page: HomePage())),
+            child: AppButton(text: "Invite", )),
         ]
       ),
     );
