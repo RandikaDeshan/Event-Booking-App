@@ -1,8 +1,10 @@
 import 'package:email_otp/email_otp.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService{
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Future<UserCredential?> createUserWithEmailAndPassword({required String email, required String password})async{
     try{
@@ -46,12 +48,35 @@ class AuthService{
     }
   }
 
-  Future<void> verifyOtp({required String otp}) async{
+  Future<bool?> verifyOtp({required String otp}) async{
     try{
       EmailOTP.config();
-      EmailOTP.verifyOTP(otp: otp);
+      bool verified = EmailOTP.verifyOTP(otp: otp);
+      return verified;
     }catch(error){
       print("Error : $error");
+      return null;
+    }
+  }
+
+  Future<UserCredential?> signInWithGoogle()async{
+    try{
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+
+      final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken
+      );
+
+      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+
+      return userCredential;
+    }catch(error){
+      print("Error :$error");
+      return null;
     }
   }
 

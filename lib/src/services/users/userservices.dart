@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/usermodel.dart';
@@ -30,5 +31,21 @@ class UserService{
     return await _usersCollection.doc(id).get().then((snapshot){
       return UserModel.fromJson(snapshot.data() as Map<String,dynamic>);
     });
+  }
+
+  Future<void> googleSaveUser()async{
+    try{
+      final UserCredential? _userCredential = await AuthService().signInWithGoogle();
+      final User? user = _userCredential?.user;
+
+      if(user != null){
+        final UserModel newUser = UserModel(
+            userid: user.uid, name: user.displayName ?? "No Name", email: user.email ?? "No Email");
+
+        final docRef = _usersCollection.doc(user.uid);
+        await docRef.set(newUser.toJson());}
+    }catch(error){
+      print('Error creating user: $error');
+    }
   }
 }

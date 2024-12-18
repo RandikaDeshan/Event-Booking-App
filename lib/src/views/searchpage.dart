@@ -8,7 +8,6 @@ import 'package:event_app/src/widgets/searcheventcard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class SearchPage extends StatefulWidget {
@@ -44,6 +43,11 @@ class _SearchPageState extends State<SearchPage> {
         _allEvents = events;
         if(widget.categories!.isEmpty && widget.price1 == 0 && widget.price2 == 250 && widget.location == null && widget.date == null && widget.pickedDate == null){
         _filterEvents = events;}
+        else if(widget.categories!.isNotEmpty && widget.price1 == null && widget.price2 == null&& widget.location == null && widget.date == null && widget.pickedDate == null){
+          _filterEvents = events.where((element) {
+            return widget.categories!.any((category) =>element.category.contains(category) ,);
+          },).toList();
+        }
         else if(widget.categories!.isEmpty && widget.price1 == null && widget.price2 == null && widget.location == null && widget.date == null && widget.pickedDate == null){
           _filterEvents = events;}
         else if(widget.categories!.isNotEmpty){
@@ -212,7 +216,18 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(onPressed: (){
-          Get.to(const NavBarPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+          Navigator.pushReplacement(context,
+              PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) => const NavBarPage(),
+                  transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    );
+                  },
+                  transitionDuration: const Duration(milliseconds: 700),
+                  reverseTransitionDuration: const Duration(milliseconds: 700)
+              ));
         }, icon: const Icon(Icons.arrow_back)),
         title: Text("Search",style: TextStyle(
           fontSize: 24.sp,
@@ -295,7 +310,9 @@ class _SearchPageState extends State<SearchPage> {
                   ],
                 ),
                 SizedBox(height: 29.h,),
-                Expanded(
+                _filterEvents.isEmpty? const Center(
+                  child: Text("No Events"),
+                ):Expanded(
                     child:ListView.builder(
                       shrinkWrap: true,
                       itemCount:  _filterEvents.length,itemBuilder: (context, index) {

@@ -1,12 +1,11 @@
-import 'package:event_app/src/models/usermodel.dart';
+
 import 'package:event_app/src/services/auth/authservices.dart';
-import 'package:event_app/src/services/users/userservices.dart';
 import 'package:event_app/src/views/auth/signinpage.dart';
 import 'package:event_app/src/views/auth/verificationpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
+
 
 import '../../utils/appcolors.dart';
 import '../../widgets/buttonpage.dart';
@@ -100,7 +99,11 @@ class _SignUpPageState extends State<SignUpPage> {
                         validator: (value) {
                           if(value!.isEmpty){
                             return 'Please enter your email';
-                          }else{
+                          }
+                          else if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                            return 'Please enter a valid email address';
+                          }
+                          else{
                             return null;
                           }
                         },
@@ -213,15 +216,21 @@ class _SignUpPageState extends State<SignUpPage> {
                           if(_formKey.currentState!.validate()){
                           await AuthService().sendOtp(email: _emailController.text);
                           if(context.mounted){
-                          showDialog(context: context, builder: (context) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          },);
-                          Get.to(VerificationPage(
-                              name: _nameController.text,
-                              email: _emailController.text,
-                              password: _passwordController.text),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+                          Navigator.push(context,
+                              PageRouteBuilder(
+                                  pageBuilder: (context, animation, secondaryAnimation) => VerificationPage(
+                                      name: _nameController.text,
+                                      email: _emailController.text,
+                                      password: _passwordController.text),
+                                  transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    );
+                                  },
+                                  transitionDuration: const Duration(milliseconds: 700),
+                                  reverseTransitionDuration: const Duration(milliseconds: 700)
+                              ));
                           }}
                         },
                         child: const AppButton(text: 'SIGN UP',)))
@@ -251,7 +260,18 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),),
                     GestureDetector(
                       onTap: () {
-                        Get.to(const SignInPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+                        Navigator.pushReplacement(context,
+                            PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) => const SignInPage(),
+                                transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  );
+                                },
+                                transitionDuration: const Duration(milliseconds: 700),
+                                reverseTransitionDuration: const Duration(milliseconds: 700)
+                            ));
                       },
                       child: Text("Signin",style: TextStyle(
                           fontSize: 15.sp,

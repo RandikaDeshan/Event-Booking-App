@@ -2,12 +2,13 @@ import 'dart:async';
 
 import 'package:event_app/src/services/auth/authservices.dart';
 import 'package:event_app/src/utils/appcolors.dart';
+import 'package:event_app/src/views/auth/signuppage.dart';
 import 'package:event_app/src/views/nav/navpage.dart';
 import 'package:event_app/src/widgets/buttonpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
+
 
 import '../../models/usermodel.dart';
 import '../../services/users/userservices.dart';
@@ -59,18 +60,51 @@ class _VerificationPageState extends State<VerificationPage> {
 
   Future<void> createUser() async{
     try{
-      await UserService().saveUser(UserModel(
+      bool? verified = await AuthService().verifyOtp(otp: _firstController.text+_secondController.text+_thirdController.text+_fourthController.text);
+      if(verified!){await UserService().saveUser(UserModel(
           userid: "",
           name: widget.name,
           email: widget.email,
       ),widget.password);
       if(mounted){
-      showDialog(context: context, builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },);}
-      Get.to(const NavBarPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+      Navigator.pushReplacement(context,
+          PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => const NavBarPage(),
+              transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 700),
+              reverseTransitionDuration: const Duration(milliseconds: 700)
+          ));
+      }}
+      else{
+        if(mounted){
+        showDialog(context: context, builder: (context) {
+          return  AlertDialog(
+            title: const Text("Error"),
+            content: Text(_firstController.text.isEmpty ?"Invalid email":"Invalid code"),
+            actions: [
+              TextButton(onPressed: (){
+                _firstController.text.isEmpty ?Navigator.pushReplacement(context,
+                    PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) => const SignUpPage(),
+                        transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 700),
+                        reverseTransitionDuration: const Duration(milliseconds: 700)
+                    )) : Navigator.pop(context);
+              }, child: const Text("Back"))
+            ],
+          );
+        },);}
+      }
 
     }catch(error){
       print("Error : $error");
@@ -256,7 +290,7 @@ class _VerificationPageState extends State<VerificationPage> {
               children: [
                 GestureDetector(
                     onTap: () async{
-                      await AuthService().verifyOtp(otp: _firstController.text+_secondController.text+_thirdController.text+_fourthController.text);
+                      // await checkOtp();
                       await createUser();
                     },
                     child: const AppButton(text: "CONTINUE",)),

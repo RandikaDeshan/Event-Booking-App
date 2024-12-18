@@ -9,7 +9,6 @@ import 'package:event_app/src/widgets/googlebutton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -40,12 +39,17 @@ class _SignInPageState extends State<SignInPage> {
           email: _emailController.text,
           password: _passwordController.text,
       );
-      if(mounted){
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
         return const WrapperPage();
-      },));}
+      },));
     }catch(error){
       print("Error : $error");
+      showDialog(context: context, builder: (context) {
+        return const AlertDialog(
+          title: Text("Error"),
+          content: Text("Invalid email or password"),
+        );
+      },);
     }
   }
 
@@ -78,7 +82,11 @@ class _SignInPageState extends State<SignInPage> {
                         validator: (value) {
                           if(value!.isEmpty){
                             return 'Please enter your email';
-                          }else{
+                          }
+                          else if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                            return 'Please enter a valid email address';
+                          }
+                          else{
                             return null;
                           }
                         },
@@ -169,7 +177,18 @@ class _SignInPageState extends State<SignInPage> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Get.to(const ResetPWPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+                            Navigator.push(context,
+                                PageRouteBuilder(
+                                    pageBuilder: (context, animation, secondaryAnimation) => const ResetPWPage(),
+                                    transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                                      return FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      );
+                                    },
+                                    transitionDuration: const Duration(milliseconds: 700),
+                                    reverseTransitionDuration: const Duration(milliseconds: 700)
+                                ));
                           },
                           child: Text("Forgot Password?",style: TextStyle(
                             fontSize: 14.sp,
@@ -211,7 +230,18 @@ class _SignInPageState extends State<SignInPage> {
                     ),),
                     GestureDetector(
                       onTap: () {
-                        Get.to(const SignUpPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+                        Navigator.pushReplacement(context,
+                            PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) => const SignUpPage(),
+                                transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  );
+                                },
+                                transitionDuration: const Duration(milliseconds: 700),
+                                reverseTransitionDuration: const Duration(milliseconds: 700)
+                            ));
                       },
                       child: Text("Sign up",style: TextStyle(
                           fontSize: 15.sp,

@@ -4,7 +4,6 @@ import 'package:event_app/src/widgets/buttonpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 
 class ResetPWPage extends StatelessWidget {
   const ResetPWPage({super.key});
@@ -68,7 +67,19 @@ class ResetPWPage extends StatelessWidget {
                 GestureDetector(
                     onTap: () async{
                       await AuthService().resetPassword(_emailController.text);
-                        Get.to(const SignInPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+                      if(context.mounted){
+                      Navigator.push(context,
+                          PageRouteBuilder(
+                              pageBuilder: (context, animation, secondaryAnimation) => const SignInPage(),
+                              transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                );
+                              },
+                              transitionDuration: const Duration(milliseconds: 700),
+                              reverseTransitionDuration: const Duration(milliseconds: 700)
+                          ));}
                     },
                     child: const AppButton(text: 'SEND')),
                 SizedBox(height: 38.h,)

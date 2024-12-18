@@ -2,6 +2,7 @@ import 'package:event_app/src/models/eventimages.dart';
 import 'package:event_app/src/models/eventmodel.dart';
 import 'package:event_app/src/services/event/eventservices.dart';
 import 'package:event_app/src/views/nav/navpage.dart';
+import 'package:event_app/src/views/searchpage.dart';
 import 'package:event_app/src/widgets/searcheventcard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,7 +26,22 @@ class ExploreEventsPage extends StatelessWidget {
             color: const Color.fromRGBO(18, 13, 38, 1)
         ),),
         actions: [
-          SvgPicture.asset("assets/images/search.svg",color:const Color.fromRGBO(18, 13, 38, 1),),
+          GestureDetector(
+              onTap: () {
+                Navigator.push(context,
+                    PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) => const SearchPage(categories: [],),
+                        transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 700),
+                        reverseTransitionDuration: const Duration(milliseconds: 700)
+                    ));
+              },
+              child: SvgPicture.asset("assets/images/search.svg",color:const Color.fromRGBO(18, 13, 38, 1),)),
           IconButton(onPressed: (){}, icon: const Icon(Icons.more_vert,color: Color.fromRGBO(6, 5, 24, 1),))
         ],
       ),

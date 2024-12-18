@@ -2,7 +2,6 @@ import 'package:event_app/src/services/auth/authservices.dart';
 import 'package:event_app/src/views/auth/signinpage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 
 class DrawerPage extends StatelessWidget {
   const DrawerPage({super.key});
@@ -134,7 +133,19 @@ class DrawerPage extends StatelessWidget {
             GestureDetector(
               onTap: () async{
                 await AuthService().signOut();
-                Get.to(const SignInPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700),popGesture: false);
+                if(context.mounted){
+                Navigator.pushReplacement(context,
+                    PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) => const SignInPage(),
+                        transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 700),
+                        reverseTransitionDuration: const Duration(milliseconds: 700)
+                    ));}
               },
               child: Row(
                 children: [

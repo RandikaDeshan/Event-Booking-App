@@ -5,7 +5,6 @@ import 'package:event_app/src/utils/appcolors.dart';
 import 'package:event_app/src/views/eventdetailspage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 
 class SearchEventCard extends StatelessWidget {
   final String image;
@@ -29,7 +28,18 @@ class SearchEventCard extends StatelessWidget {
         EventModel event = snapshot.data;
         return GestureDetector(
           onTap: () {
-            Get.to(EventDetailsPage(image: image, id: id),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+            Navigator.push(context,
+                PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>EventDetailsPage(image: image, id: id),
+                    transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                    transitionDuration: const Duration(milliseconds: 700),
+                    reverseTransitionDuration: const Duration(milliseconds: 700)
+                ));
           },
           child: Container(
             height: 112.h,

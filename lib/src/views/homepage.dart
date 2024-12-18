@@ -5,6 +5,7 @@ import 'package:event_app/src/services/category/categoryservices.dart';
 import 'package:event_app/src/services/event/eventservices.dart';
 import 'package:event_app/src/views/drawerpage.dart';
 import 'package:event_app/src/views/eventdetailspage.dart';
+import 'package:event_app/src/views/exploreevents.dart';
 import 'package:event_app/src/views/notificationspage.dart';
 import 'package:event_app/src/views/searchpage.dart';
 import 'package:event_app/src/widgets/categorycard.dart';
@@ -16,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../models/eventmodel.dart';
@@ -111,7 +111,19 @@ class _HomePageState extends State<HomePage> {
                                       backgroundColor: const Color.fromRGBO(255, 255, 255, 0.1),
                                     ),
                                     onPressed: (){
-                                      Get.to(const NotificationsPage(),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+                                      if(mounted){
+                                      Navigator.push(context,
+                                          PageRouteBuilder(
+                                              pageBuilder: (context, animation, secondaryAnimation) => const NotificationsPage(),
+                                              transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                                                return FadeTransition(
+                                                  opacity: animation,
+                                                  child: child,
+                                                );
+                                              },
+                                              transitionDuration: const Duration(milliseconds: 700),
+                                              reverseTransitionDuration: const Duration(milliseconds: 700)
+                                          ));}
                                     }, icon:Stack(
                                   children: [
                                     const Icon(Icons.notifications_none,color: Colors.white,),
@@ -142,7 +154,18 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     GestureDetector(
                                         onTap:(){
-                                          Get.to(const SearchPage(categories: [],),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+                                          Navigator.push(context,
+                                              PageRouteBuilder(
+                                                  pageBuilder: (context, animation, secondaryAnimation) => const SearchPage(),
+                                                  transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                                                    return FadeTransition(
+                                                      opacity: animation,
+                                                      child: child,
+                                                    );
+                                                  },
+                                                  transitionDuration: const Duration(milliseconds: 700),
+                                                  reverseTransitionDuration: const Duration(milliseconds: 700)
+                                              ));
                                         },
                                         child: SvgPicture.asset("assets/images/search.svg")),
                                     SizedBox(width: 10.w,),
@@ -155,22 +178,27 @@ class _HomePageState extends State<HomePage> {
                                               width: 1
                                           ))
                                       ),),
-                                    SizedBox(
-                                      width: 200.w,
-                                      height: 23.h,
-                                      child: TextField(
-                                        decoration: InputDecoration(
-                                            hintText: "Search...",
-                                            hintStyle: TextStyle(
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 20.sp,
-                                                color:const Color.fromRGBO(255, 255, 255, 0.3)
-                                            ),
-                                            border: const OutlineInputBorder(
-                                                borderSide: BorderSide.none
-                                            )
-                                        ),
-                                      ),
+                                    SizedBox(width: 10.w,),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(context,
+                                            PageRouteBuilder(
+                                                pageBuilder: (context, animation, secondaryAnimation) => const SearchPage(categories: [],),
+                                                transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                                                  return FadeTransition(
+                                                    opacity: animation,
+                                                    child: child,
+                                                  );
+                                                },
+                                                transitionDuration: const Duration(milliseconds: 700),
+                                                reverseTransitionDuration: const Duration(milliseconds: 700)
+                                            ));
+                                      },
+                                      child: Text("Search...",style: TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 20.sp,
+                                          color:const Color.fromRGBO(255, 255, 255, 0.3)
+                                      ),),
                                     ),
                                   ],
                                 ),
@@ -254,11 +282,27 @@ class _HomePageState extends State<HomePage> {
                         ),),
                         Row(
                           children: [
-                            Text("See All",style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14.sp,
-                                color:const Color.fromRGBO(116, 118, 136, 1)
-                            ),),
+                            GestureDetector(
+                              onTap:(){
+                                Navigator.push(context,
+                                    PageRouteBuilder(
+                                        pageBuilder: (context, animation, secondaryAnimation) =>const ExploreEventsPage(),
+                                        transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                                          return FadeTransition(
+                                            opacity: animation,
+                                            child: child,
+                                          );
+                                        },
+                                        transitionDuration: const Duration(milliseconds: 700),
+                                        reverseTransitionDuration: const Duration(milliseconds: 700)
+                                    ));
+                              },
+                              child: Text("See All",style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 14.sp,
+                                  color:const Color.fromRGBO(116, 118, 136, 1)
+                              ),),
+                            ),
                             const Icon(Icons.arrow_right_outlined,color: Color.fromRGBO(116, 118, 136, 1),),
                           ],
                         )
@@ -287,7 +331,20 @@ class _HomePageState extends State<HomePage> {
                             padding: EdgeInsets.symmetric(horizontal: 8.w),
                             child: GestureDetector(
                                 onTap: () {
-                                  Get.to(EventDetailsPage(image: EventImages().eventImages[index], id: event.eventId),transition: Transition.zoom,duration: const Duration(milliseconds: 700));
+                                  if(mounted){
+                                    Navigator.push(context,
+                                        PageRouteBuilder(
+                                            pageBuilder: (context, animation, secondaryAnimation) => EventDetailsPage(image: EventImages().eventImages[index], id: event.eventId),
+                                            transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                                              return FadeTransition(
+                                                opacity: animation,
+                                                child: child,
+                                              );
+                                            },
+                                            transitionDuration: const Duration(milliseconds: 700),
+                                            reverseTransitionDuration: const Duration(milliseconds: 700)
+                                        ));
+                                  }
                                 },
                                 child:  EventCard(image: EventImages().eventImages[index], id: event.eventId,)),
                           );
@@ -359,16 +416,75 @@ class _HomePageState extends State<HomePage> {
                         ),),
                         Row(
                           children: [
-                            Text("See All",style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14.sp,
-                                color:const Color.fromRGBO(116, 118, 136, 1)
-                            ),),
+                            GestureDetector(
+                              onTap:(){
+                                Navigator.push(context,
+                                    PageRouteBuilder(
+                                        pageBuilder: (context, animation, secondaryAnimation) =>const ExploreEventsPage(),
+                                        transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                                          return FadeTransition(
+                                            opacity: animation,
+                                            child: child,
+                                          );
+                                        },
+                                        transitionDuration: const Duration(milliseconds: 700),
+                                        reverseTransitionDuration: const Duration(milliseconds: 700)
+                                    ));
+                              },
+                              child: Text("See All",style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 14.sp,
+                                  color:const Color.fromRGBO(116, 118, 136, 1)
+                              ),),
+                            ),
                             const Icon(Icons.arrow_right_outlined,color: Color.fromRGBO(116, 118, 136, 1),),
                           ],
                         )
                       ],
                     ),
+                  ),
+                  SizedBox(height: 19.h,),
+                  FutureBuilder(
+                    future: EventService().getEvents(),
+                    builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                      if(snapshot.connectionState == ConnectionState.waiting){
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      else if(!snapshot.hasData){
+                        return const Center(
+                          child: Text("No Events"),
+                        );
+                      }
+                      return SizedBox(
+                        height: 260.h,
+                        child: ListView.builder(itemCount:snapshot.data!.length,scrollDirection: Axis.horizontal,itemBuilder: (context, index) {
+                          final EventModel event = snapshot.data[index];
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.w),
+                            child: GestureDetector(
+                                onTap: () {
+                                  if(mounted){
+                                    Navigator.push(context,
+                                        PageRouteBuilder(
+                                            pageBuilder: (context, animation, secondaryAnimation) => EventDetailsPage(image: EventImages().eventImages[index], id: event.eventId),
+                                            transitionsBuilder:(context, animation, secondaryAnimation, child) {
+                                              return FadeTransition(
+                                                opacity: animation,
+                                                child: child,
+                                              );
+                                            },
+                                            transitionDuration: const Duration(milliseconds: 700),
+                                            reverseTransitionDuration: const Duration(milliseconds: 700)
+                                        ));
+                                  }
+                                },
+                                child:  EventCard(image: EventImages().eventImages[index], id: event.eventId,)),
+                          );
+                        },),
+                      );
+                    },
                   ),
                 ],
               ),
